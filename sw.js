@@ -1,42 +1,26 @@
-// SWPL App — Service Worker
-// Caches the app shell for offline use and fast loads.
-
-var CACHE_NAME = 'swpl-v1';
-var SHELL = [
-  '/',
-  '/index.html'
-];
-
-self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(SHELL);
-    })
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', function(e) {
-  e.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME; })
-            .map(function(k)  { return caches.delete(k); })
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', function(e) {
-  // Let Apps Script / Google Sheets requests go straight to network
-  if (e.request.url.indexOf('script.google.com') !== -1 ||
-      e.request.url.indexOf('docs.google.com') !== -1) {
-    return;
-  }
-  e.respondWith(
-    caches.match(e.request).then(function(cached) {
-      return cached || fetch(e.request);
-    })
-  );
-});
+{
+  "name": "SWPL Soccer",
+  "short_name": "SWPL",
+  "description": "Southwest Premier League — schedules, standings, player stats, and disciplinary records.",
+  "start_url": "/SWPL-App/",
+  "scope": "/SWPL-App/",
+  "display": "standalone",
+  "background_color": "#0d1c38",
+  "theme_color": "#0d1c38",
+  "orientation": "portrait-primary",
+  "categories": ["sports"],
+  "icons": [
+    {
+      "src": "https://nisa.sportzstudio.com/team_images/1727111586_a.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://nisa.sportzstudio.com/team_images/1727111586_a.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
