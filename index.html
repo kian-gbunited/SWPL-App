@@ -918,8 +918,8 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
       </div>
       <div class="reg-content">
         <div class="reg-cta-card">
-          <div class="reg-cta-tagline">Compete at the Next Level</div>
-          <div class="reg-cta-desc">The Southwest Premier League is one of the largest and most organized adult amateur soccer leagues in the United States — affiliated with NISA Nation and USSF. Join 30+ active teams across 4 regions.</div>
+          <div class="reg-cta-tagline">Join the Southwest Premier League</div>
+          <div class="reg-cta-desc">The Southwest Premier League is the most organized adult amateur soccer league in the United States — affiliated with NISA Nation and USSF. Join a growing number of competitive clubs across our regions.</div>
           <button class="reg-cta-btn" onclick="openIAB('https://www.swplsoccer.com/registration')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Register Now
@@ -943,7 +943,7 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
           </div>
           <div class="reg-promo-tile">
             <div class="rpt-icon">📍</div>
-            <div class="rpt-title">4 Active Regions</div>
+            <div class="rpt-title">Active Regions</div>
             <div class="rpt-desc">SoCal, Pacific, Nevada, San Diego</div>
           </div>
         </div>
@@ -1000,7 +1000,7 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
     <div class="iab-url" id="iab-url">swplsoccer.com</div>
     <button class="iab-close" onclick="closeIAB()">✕</button>
   </div>
-  <iframe id="iab-frame" src="about:blank" title="SWPL Content"></iframe>
+  <iframe id="iab-frame" src="about:blank" title="SWPL Content" onload="fixIABScale(this)" style="width:100%;flex:1;border:none;background:#fff"></iframe>
 </div>
 
 <div class="toast hidden" id="toast"></div>
@@ -1584,12 +1584,49 @@ function setGdTab(btn){
 
 /* ═══ IN-APP BROWSER ═══ */
 function openIAB(url){
-  const o=document.getElementById('iab');
-  const f=document.getElementById('iab-frame');
-  const u=document.getElementById('iab-url');
+  var o=document.getElementById('iab');
+  var f=document.getElementById('iab-frame');
+  var u=document.getElementById('iab-url');
   o.classList.remove('hidden');
   f.src=url;
   try{u.textContent=new URL(url).hostname+new URL(url).pathname;}catch(e){u.textContent=url;}
+}
+
+function fixIABScale(frame){
+  try{
+    var doc=frame.contentDocument||frame.contentWindow.document;
+    if(!doc)return;
+    // Check if viewport meta exists, if not add one
+    var existing=doc.querySelector('meta[name="viewport"]');
+    if(!existing){
+      var meta=doc.createElement('meta');
+      meta.name='viewport';
+      meta.content='width=device-width, initial-scale=1, maximum-scale=1';
+      doc.head.appendChild(meta);
+    } else {
+      existing.content='width=device-width, initial-scale=1, maximum-scale=1';
+    }
+    // Inject CSS to fix common SportzStudio layout issues on narrow screens
+    var style=doc.createElement('style');
+    style.textContent=[
+      // Force table and container overflow to scroll not overlap
+      'body{-webkit-text-size-adjust:100%!important}',
+      'table{width:100%!important;table-layout:auto!important}',
+      'td,th{word-break:break-word!important;white-space:normal!important}',
+      // Fix any fixed-width containers
+      '.container,.wrapper,.content-wrap,.main-content{width:100%!important;max-width:100%!important;padding:0 8px!important}',
+      // Fix roster/info tables that overlap
+      '.team-info,.roster-table,.staff-table,.contact-info{width:100%!important;display:block!important;overflow-x:auto!important}',
+      // Fix flex/grid layouts that dont wrap
+      '.flex-row,.row,[class*="col-"]{flex-wrap:wrap!important;width:100%!important}',
+      // Fix phone/email links overlapping
+      'p,div,span{max-width:100%!important;overflow-wrap:break-word!important}',
+    ].join('');
+    doc.head.appendChild(style);
+  } catch(e){
+    // Cross-origin - can't inject CSS, but the iframe will still load
+    // In this case the site should have its own mobile styles
+  }
 }
 function closeIAB(){
   document.getElementById('iab').classList.add('hidden');
