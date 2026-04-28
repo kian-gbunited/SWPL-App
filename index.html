@@ -1558,11 +1558,25 @@ function updateWkLabel(){
   el.textContent=S.weekOffset===0?'This Week':S.weekOffset===1?'Next Week':S.weekOffset===-1?'Last Week':`${S.weekOffset>0?'+':''}${S.weekOffset} Weeks`;
 }
 
+function getWeekRange(offset){
+  var t=new Date();t.setHours(12,0,0,0);
+  var dow=t.getDay(); // 0=Sun..6=Sat
+  var monOffset=(dow+6)%7; // days since Monday
+  var start=new Date(t);start.setDate(t.getDate()-monOffset+offset*7);
+  var end=new Date(start);end.setDate(start.getDate()+7);
+  return {start:start,end:end};
+}
 function renderSchedule(){
   var arr=DATA.schedule[S.schedView==='results'?'results':'upcoming'];
-  var filtered=S.schedRegion==='all'?arr:arr.filter(function(f){return f.region===S.schedRegion;});
+  var filtered=S.schedRegion==='all'?arr.slice():arr.filter(function(f){return f.region===S.schedRegion;});
+  // Filter by selected week
+  var range=getWeekRange(S.weekOffset);
+  filtered=filtered.filter(function(f){
+    var d=new Date(f.date+'T12:00:00');
+    return d>=range.start && d<range.end;
+  });
   var container=document.getElementById('fix-list');
-  if(!filtered.length){container.innerHTML='<div style="text-align:center;padding:28px;color:var(--muted);font-size:13px">No fixtures found.</div>';return;}
+  if(!filtered.length){container.innerHTML='<div style="text-align:center;padding:28px;color:var(--muted);font-size:13px">No fixtures this week.</div>';return;}
   var grouped={};
   filtered.forEach(function(f){if(!grouped[f.date])grouped[f.date]=[];grouped[f.date].push(f);});
   var fmtDate=function(ds){var d=new Date(ds+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});};
@@ -1726,12 +1740,22 @@ function adjStdWeek(d){stdWeekOffset+=d;renderStdSchedule();}
 
 function renderStdSchedule(){
   var label=document.getElementById('std-wk-label');
-  if(label)label.textContent='All Fixtures';
+  var range=getWeekRange(stdWeekOffset);
+  if(label){
+    label.textContent = stdWeekOffset===0 ? 'This Week'
+      : stdWeekOffset===1 ? 'Next Week'
+      : stdWeekOffset===-1 ? 'Last Week'
+      : (stdWeekOffset>0?'+':'')+stdWeekOffset+' Weeks';
+  }
   var arr=[].concat(DATA.schedule.upcoming,DATA.schedule.results);
-  var filtered=arr.filter(function(f){return f.region===S.stdRegion;});
+  var filtered=arr.filter(function(f){
+    if(f.region!==S.stdRegion) return false;
+    var d=new Date(f.date+'T12:00:00');
+    return d>=range.start && d<range.end;
+  });
   var container=document.getElementById('std-fix-list');
   if(!container)return;
-  if(!filtered.length){container.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No fixtures found.</div>';return;}
+  if(!filtered.length){container.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No fixtures this week.</div>';return;}
   var grouped={};
   filtered.forEach(function(f){if(!grouped[f.date])grouped[f.date]=[];grouped[f.date].push(f);});
   var fmtDate=function(ds){var d=new Date(ds+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});};
@@ -1743,7 +1767,7 @@ function renderStdSchedule(){
     out+='<div><div class="fdh">'+fmtDate(date)+'</div>';
     for(var fi=0;fi<fxs.length;fi++){
       var f=fxs[fi];
-      var isRes=!!f.homeScore;
+      var isRes=(f.homeScore!=null && f.awayScore!=null);
       var hc=teamCrestHTML(f.home,'fc-crest');
       var ac=teamCrestHTML(f.away,'fc-crest');
       var mid=isRes?('<span class="fc-score">'+f.homeScore+'–'+f.awayScore+'</span>'):'<span class="fc-vs">v</span>';
@@ -1970,11 +1994,19 @@ function loadCards(){
         var league = r['League'] || '—';
         var date   = r['Date of Incident'] || '—';
         var reason = r['Reason'] || '—';
-        var susp   = r['Length of Suspension'] || '—';
-        var issued = r['Suspension Issued On'] || '—';
+        var rawSusp = r['Length of Suspension'];
+        var hasSusp = rawSusp != null && rawSusp.toString().trim() !== '' && rawSusp.toString().trim() !== '—';
+        var susp   = hasSusp ? rawSusp : '';
+        var issued = r['Suspension Issued On'] || '';
         var fine   = r['Fine'] || '';
         var notes  = r['Notes'] || '';
-        var isRed  = reason.toLowerCase().indexOf('red') >= 0 || susp.toString().trim() !== '';
+        var reasonLc = reason.toLowerCase();
+        var isRed  = reasonLc.indexOf('red') >= 0
+                   || reasonLc.indexOf('send-off') >= 0
+                   || reasonLc.indexOf('sending off') >= 0
+                   || reasonLc.indexOf('straight') >= 0
+                   || reasonLc.indexOf('violent') >= 0
+                   || reasonLc.indexOf('serious foul') >= 0;
         html += '<div class="card-rec">'
           + '<div class="card-rec-top">'
           + '<span class="card-badge '+(isRed?'card-red':'card-yellow')+'">'+(isRed?'🟥 RED':'🟨 YELLOW')+'</span>'
