@@ -469,6 +469,35 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
   position: relative;
 }
 
+
+/* ── DISCIPLINARY CARD RECORDS ── */
+.card-rec{background:#fff;border-radius:10px;border:0.5px solid var(--border);
+          padding:13px 14px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card-rec-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.card-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+            letter-spacing:.5px;padding:3px 9px;border-radius:20px}
+.card-red{background:rgba(192,57,43,.1);color:#c0392b}
+.card-yellow{background:rgba(245,200,0,.15);color:#8a7000}
+.card-rec-date{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600}
+.card-rec-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.card-rec-club{font-size:12px;color:var(--muted);margin-bottom:7px;
+               font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.3px}
+.card-rec-detail{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:2px}
+.card-rec-notes{color:var(--muted);font-style:italic;margin-top:4px}
+
+
+/* ── DIRECTIONS BUTTON ── */
+.dir-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(26,58,110,.08);border:0.5px solid rgba(26,58,110,.2);
+  color:var(--blue);border-radius:20px;padding:3px 10px;
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  cursor:pointer;margin-top:4px;transition:.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.dir-btn:active{background:rgba(26,58,110,.18)}
+
 </style>
 </head>
 <body>
@@ -729,6 +758,7 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
         <button class="tb" data-gd="checkin" onclick="setGdTab(this)">Check-In</button>
         <button class="tb" data-gd="gameplay" onclick="setGdTab(this)">Game Play</button>
         <button class="tb" data-gd="postgame" onclick="setGdTab(this)">Post-Game</button>
+        <button class="tb" data-gd="cards" onclick="setGdTab(this)">🟥 Cards</button>
       </div>
 
       <div class="gd-panel active" id="gdp-pregame">
@@ -925,6 +955,17 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
           </ol>
         </div>
         <a class="gd-link" style="display:inline-flex;margin:0 0 14px" href="https://www.swplsoccer.com/post-game" onclick="openIAB(this.href);return false">Full Post-Game Page ↗</a>
+      </div>
+
+      <!-- CARDS PANEL -->
+      <div class="gd-panel" id="gdp-cards">
+        <div class="gd-card">
+          <div class="gd-card-title">🟥 Disciplinary Records</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Live from the SWPL suspension sheet. Updated by league staff.</p>
+          <div id="cards-loading" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Loading...</div>
+          <div id="cards-error" class="hidden" style="text-align:center;padding:20px;color:#c0392b;font-size:13px">Could not load data. Check your connection.</div>
+          <div id="cards-list" class="hidden"></div>
+        </div>
       </div>
     </section>
 
@@ -1548,6 +1589,7 @@ function renderSchedule(){
         +'<span class="fc-meta">'+f.div+'</span>'
         +'<span class="fc-meta">'+f.time+'</span>'
         +'<span class="fc-meta fc-venue-txt">'+f.venue+'</span>'
+        +(VENUES[f.venue]?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
         +'</div>'
         +'</div></div>';
     }
@@ -1603,8 +1645,9 @@ function setGdTab(btn){
   document.querySelectorAll('#gd-tabs .tb').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.gd-panel').forEach(p=>p.classList.remove('active'));
-  const p=document.getElementById('gdp-'+btn.dataset.gd);
+  var p=document.getElementById('gdp-'+btn.dataset.gd);
   if(p)p.classList.add('active');
+  if(btn.dataset.gd==='cards') loadCards();
 }
 
 /* ═══ IN-APP BROWSER ═══ */
@@ -1713,6 +1756,7 @@ function renderStdSchedule(){
         +'<span class="fc-meta">'+f.div+'</span>'
         +'<span class="fc-meta">'+f.time+'</span>'
         +'<span class="fc-meta fc-venue-txt">'+f.venue+'</span>'
+        +(VENUES[f.venue]?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
         +'</div>'
         +'</div></div>';
     }
@@ -1752,6 +1796,30 @@ function renderStdTeams(){
   }
   grid.innerHTML=rows.join('');
 }
+
+const VENUES = {
+  'Hal Bartholomew Sports Park': '10150 Franklin High Rd, Elk Grove, CA 95757',
+  'Lake Forest Sports Park': '28000 Vista Terrace, Lake Forest, CA 92630',
+  'Oak Creek Park': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Pleasant View Park': '16650 Landau Ln, Huntington Beach, CA 92647',
+  'South Fontana Park': '16647 Santa Ana Ave, Fontana, CA 92337',
+  'Southern Utah University': '105 S 800 W, Cedar City, UT 84720',
+  'Grossmont High School Stadium': '1100 Murray Dr, El Cajon, CA 92020',
+  'Orange County Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park, Irvine': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Watson Park Soccer Field': 'N 22nd St & Jackson St, San Jose, CA 95112',
+  'Arroyo Valley High School Stadium': '1881 W Base Line St, San Bernardino, CA 92411',
+  'Cal State Dominguez Hills': '1000 E Victoria St, Carson, CA 90747',
+  'LA City College': '855 N Vermont Ave, Los Angeles, CA 90029',
+  'San Jose Sports Complex': 'N 22nd St & Jackson St, San Jose, CA 95112',
+  'Las Vegas Sports Park': '7400 Alta Dr, Las Vegas, NV 89145',
+  'St. George Sports Complex': '900 S 1000 E, St. George, UT 84790',
+  'Buena Park HS': '8833 Whitaker St, Buena Park, CA 90621',
+  'Cypress Soccer Complex': '9700 Alondra Blvd, Cypress, CA 90630',
+  'Ross Middle School': '4525 Caesar Chavez Ave, Los Angeles, CA 90022',
+  'Orinda Valley': '26 Orinda Way, Orinda, CA 94563'
+};
 
 const PLAYER_STATS = {
   socal:[
@@ -1819,6 +1887,87 @@ function renderStdPlayerStats(){
   }
   tbody.innerHTML=rows.join('');
 }
+
+/* ═══ CARDS / DISCIPLINARY ═══ */
+var cardsLoaded = false;
+function loadCards(){
+  if(cardsLoaded) return;
+  var loading = document.getElementById('cards-loading');
+  var error   = document.getElementById('cards-error');
+  var list    = document.getElementById('cards-list');
+  loading.classList.remove('hidden');
+  error.classList.add('hidden');
+  list.classList.add('hidden');
+
+  fetch('https://script.google.com/macros/s/AKfycbw9ENbOcVhbh4zXA4HZ1P4Z2ognHIyNaw_H3CY9DkyP7V6cboirPPssW-GLwzAWRccZyA/exec')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      loading.classList.add('hidden');
+      if(!rows || !rows.length){
+        list.innerHTML='<p style="text-align:center;color:var(--muted);font-size:13px;padding:16px">No records found.</p>';
+        list.classList.remove('hidden');
+        return;
+      }
+      // Filter out empty rows
+      rows = rows.filter(function(r){ return r['Name'] && r['Name'].toString().trim(); });
+      if(!rows.length){
+        list.innerHTML='<p style="text-align:center;color:var(--muted);font-size:13px;padding:16px">No active suspensions.</p>';
+        list.classList.remove('hidden');
+        return;
+      }
+      var html = '';
+      for(var i=0;i<rows.length;i++){
+        var r = rows[i];
+        var name   = r['Name'] || '—';
+        var club   = r['Club'] || '—';
+        var league = r['League'] || '—';
+        var date   = r['Date of Incident'] || '—';
+        var reason = r['Reason'] || '—';
+        var susp   = r['Length of Suspension'] || '—';
+        var issued = r['Suspension Issued On'] || '—';
+        var fine   = r['Fine'] || '';
+        var notes  = r['Notes'] || '';
+        var isRed  = reason.toLowerCase().indexOf('red') >= 0 || susp.toString().trim() !== '';
+        html += '<div class="card-rec">'
+          + '<div class="card-rec-top">'
+          + '<span class="card-badge '+(isRed?'card-red':'card-yellow')+'">'+(isRed?'🟥 RED':'🟨 YELLOW')+'</span>'
+          + '<span class="card-rec-date">'+date+'</span>'
+          + '</div>'
+          + '<div class="card-rec-name">'+name+'</div>'
+          + '<div class="card-rec-club">'+club+' · '+league+'</div>'
+          + '<div class="card-rec-detail"><strong>Reason:</strong> '+reason+'</div>'
+          + (susp ? '<div class="card-rec-detail"><strong>Suspension:</strong> '+susp+'</div>' : '')
+          + (issued ? '<div class="card-rec-detail"><strong>Issued:</strong> '+issued+'</div>' : '')
+          + (fine ? '<div class="card-rec-detail"><strong>Fine:</strong> '+fine+'</div>' : '')
+          + (notes ? '<div class="card-rec-detail card-rec-notes">'+notes+'</div>' : '')
+          + '</div>';
+      }
+      list.innerHTML = html;
+      list.classList.remove('hidden');
+      cardsLoaded = true;
+    })
+    .catch(function(e){
+      loading.classList.add('hidden');
+      error.classList.remove('hidden');
+      console.error('Cards fetch error:', e);
+    });
+}
+
+
+function getDirections(venue){
+  var addr = VENUES[venue] || venue;
+  var encoded = encodeURIComponent(addr);
+  // Try Apple Maps on iOS, Google Maps as fallback
+  var ua = navigator.userAgent;
+  var url;
+  if(/iPhone|iPad|iPod/.test(ua)){
+    url = 'maps://maps.apple.com/?q=' + encoded;
+  } else {
+    url = 'https://www.google.com/maps/search/?api=1&query=' + encoded;
+  }
+  window.open(url, '_blank');
+}
+
 </script>
 </body>
 </html>
