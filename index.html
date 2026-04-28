@@ -315,7 +315,7 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
 /* ══════════════════════════════════════
    IN-APP BROWSER
    ══════════════════════════════════════ */
-#iab{position:fixed;inset:0;background:var(--navy);z-index:200;display:flex;flex-direction:column}
+#iab{position:fixed;inset:0;background:var(--navy);z-index:200;display:flex;flex-direction:column}#iab-frame-wrap{flex:1;overflow:hidden;position:relative;width:100%}
 #iab.hidden{display:none}
 .iab-bar{height:52px;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;padding:0 13px;flex-shrink:0}
 .iab-bar img{height:28px;width:auto}
@@ -454,6 +454,20 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
 .rc2-soon{opacity:.85}
 .rc2-center-wrap{grid-column:1/-1;display:flex;justify-content:center}
 .rc2-center-wrap .rc2{width:50%}
+
+
+/* IAB iframe scaling - render at desktop width, scale to fit phone */
+#iab-frame{
+  width: 980px !important;
+  transform-origin: top left;
+  flex: none !important;
+}
+#iab-frame-wrap{
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
 
 </style>
 </head>
@@ -1000,7 +1014,9 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
     <div class="iab-url" id="iab-url">swplsoccer.com</div>
     <button class="iab-close" onclick="closeIAB()">✕</button>
   </div>
-  <iframe id="iab-frame" src="about:blank" title="SWPL Content" onload="fixIABScale(this)" style="width:100%;flex:1;border:none;background:#fff"></iframe>
+  <div id="iab-frame-wrap">
+    <iframe id="iab-frame" src="about:blank" title="SWPL Content" onload="fixIABScale(this)" style="border:none;background:#fff;height:100%"></iframe>
+  </div>
 </div>
 
 <div class="toast hidden" id="toast"></div>
@@ -1593,40 +1609,22 @@ function openIAB(url){
 }
 
 function fixIABScale(frame){
+  // Scale desktop page to fit phone width
+  var wrap = document.getElementById('iab-frame-wrap');
+  var wrapW = wrap ? wrap.offsetWidth : window.innerWidth;
+  var desktopW = 980;
+  var scale = wrapW / desktopW;
+  frame.style.width = desktopW + 'px';
+  frame.style.height = (wrap ? wrap.offsetHeight : window.innerHeight) / scale + 'px';
+  frame.style.transform = 'scale(' + scale + ')';
+  frame.style.transformOrigin = 'top left';
+  // Also try injecting CSS for better layout
   try{
-    var doc=frame.contentDocument||frame.contentWindow.document;
-    if(!doc)return;
-    // Check if viewport meta exists, if not add one
-    var existing=doc.querySelector('meta[name="viewport"]');
-    if(!existing){
-      var meta=doc.createElement('meta');
-      meta.name='viewport';
-      meta.content='width=device-width, initial-scale=1, maximum-scale=1';
-      doc.head.appendChild(meta);
-    } else {
-      existing.content='width=device-width, initial-scale=1, maximum-scale=1';
-    }
-    // Inject CSS to fix common SportzStudio layout issues on narrow screens
-    var style=doc.createElement('style');
-    style.textContent=[
-      // Force table and container overflow to scroll not overlap
-      'body{-webkit-text-size-adjust:100%!important}',
-      'table{width:100%!important;table-layout:auto!important}',
-      'td,th{word-break:break-word!important;white-space:normal!important}',
-      // Fix any fixed-width containers
-      '.container,.wrapper,.content-wrap,.main-content{width:100%!important;max-width:100%!important;padding:0 8px!important}',
-      // Fix roster/info tables that overlap
-      '.team-info,.roster-table,.staff-table,.contact-info{width:100%!important;display:block!important;overflow-x:auto!important}',
-      // Fix flex/grid layouts that dont wrap
-      '.flex-row,.row,[class*="col-"]{flex-wrap:wrap!important;width:100%!important}',
-      // Fix phone/email links overlapping
-      'p,div,span{max-width:100%!important;overflow-wrap:break-word!important}',
-    ].join('');
-    doc.head.appendChild(style);
-  } catch(e){
-    // Cross-origin - can't inject CSS, but the iframe will still load
-    // In this case the site should have its own mobile styles
-  }
+    var doc = frame.contentDocument || frame.contentWindow.document;
+    if(!doc) return;
+    var meta = doc.querySelector('meta[name="viewport"]');
+    if(meta) meta.content = 'width=980';
+  } catch(e){}
 }
 function closeIAB(){
   document.getElementById('iab').classList.add('hidden');
