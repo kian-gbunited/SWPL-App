@@ -187,6 +187,7 @@ img{display:block}
 .stbl td{padding:9px 5px;text-align:center;border-bottom:0.5px solid var(--border);color:var(--text);font-variant-numeric:tabular-nums}
 .stbl td:nth-child(2){text-align:left}
 .stbl tbody tr:hover td{background:rgba(240,90,26,.03)}
+#std-sec-playerstats .stbl{width:auto;min-width:unset}
 .td-clu{display:flex;align-items:center;gap:7px;font-weight:500;font-size:12px;white-space:nowrap}
 .team-crest{width:24px;height:24px;border-radius:4px;object-fit:contain;flex-shrink:0;background:var(--off)}
 .team-crest-placeholder{width:24px;height:24px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;color:#fff}
@@ -702,12 +703,11 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
           <table class="stbl">
             <thead>
               <tr>
-                <th>#</th>
+                <th style="width:22px">#</th>
                 <th style="text-align:left">Player</th>
-                <th>Team</th>
-                <th title="Goals">G</th>
-                <th title="Assists">A</th>
-                <th title="Games">GP</th>
+                <th style="width:30px" title="Goals">G</th>
+                <th style="width:30px" title="Assists">A</th>
+                <th style="width:30px" title="Games Played">GP</th>
               </tr>
             </thead>
             <tbody id="std-players-body"></tbody>
@@ -961,7 +961,8 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
       <div class="gd-panel" id="gdp-cards">
         <div class="gd-card">
           <div class="gd-card-title">🟥 Disciplinary Records</div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Live from the SWPL suspension sheet. Updated by league staff.</p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">Live from the SWPL suspension sheet. Updated by league staff.</p>
+          <a href="https://docs.google.com/spreadsheets/d/1DUU6l6fVxGQwUly2YM7fcEygodss0H5CVw2wk4SvItk/edit" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:12px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;background:var(--blue);border-radius:8px;padding:8px 16px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase">📋 View Suspension Sheet</a>
           <div id="cards-loading" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Loading...</div>
           <div id="cards-error" class="hidden" style="text-align:center;padding:20px;color:#c0392b;font-size:13px;line-height:1.6"></div>
           <div id="cards-list" class="hidden"></div>
@@ -1419,8 +1420,28 @@ const S={page:'home',stdRegion:'socal',stdDiv:null,schedView:'upcoming',schedReg
 /* ═══ LIVE SCHEDULE ═══ */
 // Apps Script web-app URL — scrapes all 4 SWPL sites nightly and returns fresh JSON.
 // To update this URL: deploy a new version of swpl-schedule.gs and paste the /exec URL here.
-var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycby5Wzn-tYpJiJGXXWyxGHnpOj-jKePlfIzcfXogy60EgaLLFQWTirjIcpDQLVUGBzlx/exec';
+var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycbzqwZSphO0bLH7S9DKG7wzLnNtKj3r5m83EoBQivRMvxxfncEGnyBJ489SEJisxtq6v/exec';
 var liveScheduleFetched = false;
+var liveStatsFetched = false;
+
+function fetchLiveStats() {
+  if (liveStatsFetched) return;
+  fetch(LIVE_SCHEDULE_URL + '?mode=stats&_=' + Date.now())
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(json) {
+      if (!json || json.status !== 'ok') return;
+      var data = json.data || {};
+      ['socal','pacific','nevada','sandiego'].forEach(function(region) {
+        if (data[region] && data[region].length > 0) {
+          PLAYER_STATS[region] = data[region];
+        }
+      });
+      liveStatsFetched = true;
+      try { renderStdPlayerStats(); } catch(e) {}
+      console.log('[SWPL] Live stats loaded');
+    })
+    .catch(function(e) { console.log('[SWPL] Stats fetch failed (using hardcoded):', e); });
+}
 
 function fetchLiveSchedule() {
   if (liveScheduleFetched) return;
@@ -1468,8 +1489,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   try{renderHomeNews();}catch(e){}
   try{renderStdSchedule();}catch(e){}
   try{renderStdPlayerStats();}catch(e){}
-  // Fetch live schedule in background — updates display automatically when ready
+  // Fetch live schedule and stats in background — updates display automatically when ready
   try{fetchLiveSchedule();}catch(e){}
+  try{fetchLiveStats();}catch(e){}
   setTimeout(function(){
     var splash=document.getElementById('splash');
     var app=document.getElementById('app');
@@ -1648,7 +1670,7 @@ function renderSchedule(){
         +'<span class="fc-meta">'+f.div+'</span>'
         +'<span class="fc-meta">'+f.time+'</span>'
         +'<span class="fc-meta fc-venue-txt">'+f.venue+'</span>'
-        +(VENUES[f.venue]?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
+        +(resolveVenue(f.venue)?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
         +'</div>'
         +'</div></div>';
     }
@@ -1805,7 +1827,7 @@ function renderStdSchedule(){
   filtered.forEach(function(f){if(!grouped[f.date])grouped[f.date]=[];grouped[f.date].push(f);});
   var fmtDate=function(ds){var d=new Date(ds+'T12:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});};
   var out='';
-  var dateKeys=Object.keys(grouped).sort(function(a,b){return b.localeCompare(a);});
+  var dateKeys=Object.keys(grouped).sort(function(a,b){return a.localeCompare(b);});
   for(var di=0;di<dateKeys.length;di++){
     var date=dateKeys[di];
     var fxs=grouped[date];
@@ -1825,7 +1847,7 @@ function renderStdSchedule(){
         +'<span class="fc-meta">'+f.div+'</span>'
         +'<span class="fc-meta">'+f.time+'</span>'
         +'<span class="fc-meta fc-venue-txt">'+f.venue+'</span>'
-        +(VENUES[f.venue]?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
+        +(resolveVenue(f.venue)?'<button class="dir-btn" onclick="getDirections(\''+f.venue+'\')">📍 Directions</button>':'')
         +'</div>'
         +'</div></div>';
     }
@@ -1872,19 +1894,19 @@ const VENUES = {
   'Oak Creek Park': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Pleasant View Park': '16650 Landau Ln, Huntington Beach, CA 92647',
   'South Fontana Park': '16647 Santa Ana Ave, Fontana, CA 92337',
+  'South Fontana Sports Complex': '16647 Santa Ana Ave, Fontana, CA 92337',
   'Southern Utah University': '105 S 800 W, Cedar City, UT 84720',
   'Grossmont High School Stadium': '1100 Murray Dr, El Cajon, CA 92020',
   'Orange County Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
   'Watson Park Soccer Field': 'N 22nd St & Jackson St, San Jose, CA 95112',
   'Arroyo Valley High School Stadium': '1881 W Base Line St, San Bernardino, CA 92411',
   'Victory Christian Academy Stadium': '810 Buena Vista Way, Chula Vista, CA 91910',
+  'Victory Christian Academy Turf Field': '810 Buena Vista Way, Chula Vista, CA 91910',
+  'Victory Christian Academy': '810 Buena Vista Way, Chula Vista, CA 91910',
   'Los Angeles City College Stadium': '770 Heliotrope Dr, Los Angeles, CA 90029',
   'Morgan Hill Outdoor Sports Center': '16500 Condit Rd, Morgan Hill, CA 95037',
   'Red Morton Park': '1120 Roosevelt Ave, Redwood City, CA 94061',
   'Sunrise Mountain High School Stadium': '2575 Los Feliz St, Las Vegas, NV 89156',
-  'Viper Family Sports Complex Field 2': '6105 N Durango Dr, Las Vegas, NV 89149',
-  'Ed Fountain Park Field 1': '1400 N Decatur Blvd, Las Vegas, NV 89108',
-  'Little Valley Soccer Field 3': '2260 E Horseman Park Dr, St. George, UT 84790',
   'Orange County Great Park Field 1': '8000 Great Park Blvd, Irvine, CA 92618',
   'Orange County Great Park Field 2': '8000 Great Park Blvd, Irvine, CA 92618',
   'Orange County Great Park Field 3': '8000 Great Park Blvd, Irvine, CA 92618',
@@ -1966,38 +1988,80 @@ const VENUES = {
   'Pleasant View Park Field 1': '16650 Landau Ln, Huntington Beach, CA 92647',
   'Pleasant View Park Field 2': '16650 Landau Ln, Huntington Beach, CA 92647',
   'Mater Academy East High School Stadium': '3900 E Bonanza Rd, Las Vegas, NV 89110',
-  'Kellogg Zaher Soccer Complex': '7901 W Washington Ave, Las Vegas, NV 89128',
-  'Pine View High School Stadium': '2850 E 750 N, St. George, UT 84790',
-  'Ross Middle School': '17707 Elaine Ave, Artesia, CA 90701',
+  'LA City College': '770 Heliotrope Dr, Los Angeles, CA 90029',
 };
 
 
 const PLAYER_STATS = {
   socal:[
-    {name:'Alvayero, Stewart',team:'Montclair Academy FC',pos:'FWD',g:11,a:1,gp:8},
-    {name:'Albaadani, Akram',team:'Fontana Legacy FC',pos:'MID',g:8,a:0,gp:9},
-    {name:'Benitez, Joey',team:'Zapa FC',pos:'FWD',g:5,a:0,gp:6},
-    {name:'Benitez, Scott',team:'FAS USA Academy',pos:'MID',g:5,a:0,gp:8},
-    {name:'Castro, Bigvai',team:'Academia Gullit',pos:'FWD',g:4,a:0,gp:9},
-    {name:'Couto, Jeremy',team:'Artesia DES FC',pos:'MID',g:3,a:0,gp:10},
-    {name:'Chavez, Rodrigo',team:'Temecula FC',pos:'FWD',g:3,a:0,gp:8},
-    {name:'Camarena, Christopher',team:'Zapa FC',pos:'FWD',g:2,a:2,gp:6},
-    {name:'Alvarado, Andy',team:'Buena Park FC',pos:'MID',g:2,a:0,gp:7},
-    {name:'Alvarado, Luis',team:'FC Cypress',pos:'MID',g:2,a:0,gp:11},
-    {name:'Campos, Diego',team:'Artesia DES FC',pos:'DEF',g:2,a:0,gp:10},
-    {name:'Brigida, Dante',team:'Montclair Academy FC',pos:'FWD',g:2,a:0,gp:8},
-    {name:'Almeida, George',team:'FCUK',pos:'FWD',g:2,a:0,gp:7},
-    {name:'Connell, Daniel',team:'Montclair Academy FC',pos:'MID',g:2,a:0,gp:8},
-    {name:'Batres, Nicolas',team:'AMSG U23',pos:'MID',g:2,a:0,gp:6},
+    {name:'Alvayero, Stewart',team:'Montclair Academy FC',pos:'FWD',g:11,a:1,gp:0},
+    {name:'Quesada, Exides',team:'Montclair Academy FC',pos:'FWD',g:9,a:0,gp:0},
+    {name:'Rios, Darwin',team:'FAS USA',pos:'FWD',g:9,a:0,gp:0},
+    {name:'Albaadani, Akram',team:'Fontana Legacy FC',pos:'MID',g:8,a:0,gp:0},
+    {name:'Abarca Betancourt, Dilger',team:'Montclair Academy FC 2',pos:'MID',g:8,a:0,gp:0},
+    {name:'Somers, Connor',team:'Forza SC',pos:'FWD',g:8,a:0,gp:0},
+    {name:'Gomez, Angel',team:'FAS USA',pos:'MID',g:7,a:0,gp:0},
+    {name:'Gonzalez, Christian',team:'Academia Gullit',pos:'MID',g:7,a:0,gp:0},
+    {name:'Leonardo, Noah',team:'Artesia DES FC',pos:'MID',g:7,a:0,gp:0},
+    {name:'Montes de Oca, Jose',team:'Montclair Academy FC',pos:'FWD',g:7,a:0,gp:0},
+    {name:'Remily, Christopher',team:'Temecula FC',pos:'FWD',g:7,a:0,gp:0},
+    {name:'Garcia, Emmanuel',team:'Montclair Academy FC 2',pos:'MID',g:6,a:0,gp:0},
+    {name:'Pascual, Danny',team:'FAS USA',pos:'MID',g:6,a:0,gp:0},
+    {name:'Benitez, Joey',team:'Zapa FC',pos:'FWD',g:5,a:0,gp:0},
+    {name:'Benitez, Scott',team:'FAS USA Academy',pos:'MID',g:5,a:0,gp:0},
+    {name:'Mendoza, Matthew',team:'Zapa FC',pos:'FWD',g:5,a:0,gp:0},
+    {name:'Nachawati, Danny',team:'FC Cypress',pos:'FWD',g:5,a:0,gp:0},
+    {name:'Oropeza, Gabriel',team:'Montclair Academy FC',pos:'MID',g:5,a:0,gp:0},
+    {name:'Castro, Bigvai',team:'Academia Gullit',pos:'FWD',g:4,a:0,gp:0},
+    {name:'Diaz, Carlos',team:'FAS USA Academy',pos:'DEF',g:4,a:0,gp:0},
+    {name:'Leathem, Lex',team:'FCUK',pos:'MID',g:4,a:3,gp:0},
+    {name:'Martinez, Alejandro',team:'Artesia DES FC',pos:'FWD',g:4,a:0,gp:0},
+    {name:'Politron, David',team:'Montclair Academy FC 2',pos:'DEF',g:4,a:0,gp:0},
+    {name:'Renteria, Pedro',team:'Academia Gullit Dos',pos:'FWD',g:4,a:0,gp:0},
+    {name:'Vaughan, Finlay',team:'FAS USA Academy',pos:'MID',g:4,a:0,gp:0},
+    {name:'Vieira, Francisco',team:'Artesia DES FC',pos:'FWD',g:4,a:0,gp:0},
+    {name:'York, Christian',team:'FAS USA Academy',pos:'FWD',g:4,a:0,gp:0},
+    {name:'Chavez, Rodrigo',team:'Temecula FC',pos:'FWD',g:3,a:0,gp:0},
+    {name:'Couto, Jeremy',team:'Artesia DES FC',pos:'MID',g:3,a:0,gp:0},
+    {name:'Fuller, Jonathan',team:'Artesia DES FC',pos:'DEF',g:3,a:0,gp:0},
+    {name:'Koos, Dean',team:'FC Cypress',pos:'FWD',g:3,a:0,gp:0},
+    {name:'Lopez, Diego',team:'FAS USA Academy',pos:'MID',g:3,a:0,gp:0},
+    {name:'Lopez, Anthony',team:'Montclair Academy FC',pos:'FWD',g:3,a:0,gp:0},
+    {name:'Nygren, Samuel',team:'FC Cypress',pos:'DEF',g:3,a:0,gp:0},
+    {name:'Padilla, Nathan',team:'FAS USA',pos:'MID',g:3,a:0,gp:0},
+    {name:'Pla, Sebastian',team:'Montclair Academy FC',pos:'MID',g:3,a:0,gp:0},
+    {name:'Politron, Jose',team:'Montclair Academy FC 2',pos:'MID',g:3,a:0,gp:0},
+    {name:'Prieto, Pedro',team:'AMSG U23',pos:'DEF',g:3,a:0,gp:0},
+    {name:'Ramirez, Guillermo',team:'FCUK',pos:'FWD',g:3,a:4,gp:0},
+    {name:'Rodriguez, Israel',team:'Montclair Academy FC 2',pos:'FWD',g:3,a:0,gp:0},
+    {name:'Rodriguez, Maxwell',team:'Montclair Academy FC',pos:'FWD',g:3,a:1,gp:0},
+    {name:'Salazar, Chris',team:'FAS USA Academy',pos:'MID',g:3,a:0,gp:0},
+    {name:'Solorzano, Isaac',team:'FAS USA Academy',pos:'MID',g:3,a:0,gp:0},
+    {name:'Vasquez, Joseph',team:'Forza SC',pos:'MID',g:3,a:0,gp:0},
+    {name:'Vilela, Johnny',team:'Inland Empire FC',pos:'FWD',g:3,a:0,gp:0},
+    {name:'Parker, Sam',team:'FCUK',pos:'MID',g:0,a:6,gp:0},
+    {name:'Fichtelberg, Donovan',team:'FCUK',pos:'MID',g:2,a:5,gp:0},
+    {name:'Grajeda, Miguel',team:'Zapa FC',pos:'FWD',g:2,a:3,gp:0},
   ],
   pacific:[
-    {name:'Osayande, Ranson',team:'Legends SC',pos:'FWD',g:5,a:0,gp:3},
-    {name:'Gonda, Max',team:'JSC JASA',pos:'FWD',g:2,a:0,gp:3},
-    {name:'Oliveira, Joao Vitor',team:'Atletico San Jose U23',pos:'FWD',g:2,a:0,gp:3},
-    {name:'Crawford, James',team:'Legends SC',pos:'FWD',g:1,a:0,gp:3},
-    {name:'David, Mekhi',team:'OV Toros FC',pos:'FWD',g:1,a:0,gp:3},
-    {name:'Arcila, Alexander',team:'OV Toros FC',pos:'MID',g:1,a:0,gp:3},
-    {name:'Martire, Ben',team:'OV Toros FC',pos:'FWD',g:1,a:0,gp:3},
+    {name:'Osayande, Ranson',team:'Legends SC',pos:'FWD',g:5,a:0,gp:0},
+    {name:'David, Mekhi',team:'OV Toros FC',pos:'FWD',g:2,a:0,gp:0},
+    {name:'Gonda, Max',team:'JSC JASA',pos:'FWD',g:2,a:0,gp:0},
+    {name:'Oliveira, Joao Vitor',team:'Atletico San Jose U23',pos:'FWD',g:2,a:0,gp:0},
+    {name:'Skinderev, Alexander',team:'JSC JASA',pos:'FWD',g:2,a:0,gp:0},
+    {name:'Arcila, Alexander',team:'OV Toros FC',pos:'MID',g:1,a:0,gp:0},
+    {name:'Balderrama Aragon, Heber',team:'OV Toros FC',pos:'MID',g:1,a:0,gp:0},
+    {name:'Crawford, James',team:'Legends SC',pos:'FWD',g:1,a:0,gp:0},
+    {name:'Martire, Ben',team:'OV Toros FC',pos:'FWD',g:1,a:0,gp:0},
+    {name:'Rivera, Julian',team:'Atletico San Jose U23',pos:'MID',g:1,a:0,gp:0},
+    {name:'Rozay, Manuel',team:'Atletico San Jose U23',pos:'FWD',g:1,a:0,gp:0},
+    {name:'Ruiz, Axel',team:'Atletico San Jose U23',pos:'DEF',g:1,a:0,gp:0},
+    {name:'Sandhu, Raspreet',team:'JSC JASA',pos:'MID',g:1,a:0,gp:0},
+    {name:'Serra, Alessio',team:'Atletico San Jose U23',pos:'FWD',g:1,a:0,gp:0},
+    {name:'Snodgrass, Evan',team:'JSC JASA',pos:'MID',g:1,a:0,gp:0},
+    {name:'Ualkhanov, Dias',team:'Legends SC',pos:'DEF',g:1,a:0,gp:0},
+    {name:'Yolasan, Grant',team:'JSC JASA',pos:'MID',g:1,a:0,gp:0},
+    {name:'Zetina Vargas, Raymond',team:'OV Toros FC',pos:'FWD',g:1,a:0,gp:0},
   ],
   nevada:[
     {name:'Canizalez, Hayden',team:'Las Vegas United FC',pos:'MID',g:4,a:0,gp:3},
@@ -2028,12 +2092,14 @@ function renderStdPlayerStats(){
   for(var i=0;i<players.length;i++){
     var p=players[i];
     rows.push('<tr>'
-      +'<td style="text-align:center;color:var(--muted);font-size:11px;font-weight:600">'+(i+1)+'</td>'
-      +'<td style="text-align:left;font-weight:600;font-size:12px;padding:9px 5px">'+p.name+'</td>'
-      +'<td style="font-size:10px;color:var(--muted)">'+p.team+'</td>'
-      +'<td style="font-weight:700;color:var(--blue);font-size:14px;text-align:center">'+p.g+'</td>'
-      +'<td style="text-align:center">'+p.a+'</td>'
-      +'<td style="text-align:center;color:var(--muted)">'+p.gp+'</td>'
+      +'<td style="text-align:center;color:var(--muted);font-size:11px;font-weight:600;width:22px;padding:6px 2px">'+(i+1)+'</td>'
+      +'<td style="text-align:left;padding:6px 5px">'
+        +'<div style="font-weight:600;font-size:12px;line-height:1.3">'+p.name+'</div>'
+        +'<div style="font-size:10px;color:var(--muted);line-height:1.3">'+p.team+'</div>'
+      +'</td>'
+      +'<td style="font-weight:700;color:var(--blue);font-size:14px;text-align:center;width:30px">'+p.g+'</td>'
+      +'<td style="text-align:center;width:30px">'+p.a+'</td>'
+      +'<td style="text-align:center;color:var(--muted);width:30px">'+p.gp+'</td>'
       +'</tr>');
   }
   tbody.innerHTML=rows.join('');
@@ -2153,16 +2219,31 @@ function loadCards(){
     })
     .catch(function(e){
       loading.classList.add('hidden');
-      error.innerHTML = 'Could not load suspension data: ' + e.message + '<br>'
-        + '<span style="font-size:12px;color:var(--muted)">Check your connection and try again.</span>';
+      error.innerHTML = '<span style="font-size:13px;color:var(--muted)">Live data temporarily unavailable.<br>Use the button above to view the sheet directly.</span>';
       error.classList.remove('hidden');
       console.error('Cards fetch error:', e);
     });
 }
 
 
+function resolveVenue(venue){
+  if(!venue) return null;
+  if(VENUES[venue]) return VENUES[venue];
+  // fuzzy: case-insensitive exact match
+  var vl = venue.toLowerCase();
+  for(var k in VENUES){
+    if(k.toLowerCase() === vl) return VENUES[k];
+  }
+  // fuzzy: stored key contained in venue name or vice versa
+  for(var k in VENUES){
+    var kl = k.toLowerCase();
+    if(vl.indexOf(kl) !== -1 || kl.indexOf(vl) !== -1) return VENUES[k];
+  }
+  return null;
+}
+
 function getDirections(venue){
-  var addr = VENUES[venue];
+  var addr = resolveVenue(venue);
   if(!addr){ showToast('Address coming soon for this venue'); return; }
   var encoded = encodeURIComponent(addr);
   var ua = navigator.userAgent;
