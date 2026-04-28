@@ -1806,20 +1806,18 @@ const VENUES = {
   'Southern Utah University': '105 S 800 W, Cedar City, UT 84720',
   'Grossmont High School Stadium': '1100 Murray Dr, El Cajon, CA 92020',
   'Orange County Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
-  'OC Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
-  'OC Great Park, Irvine': '8000 Great Park Blvd, Irvine, CA 92618',
   'Watson Park Soccer Field': 'N 22nd St & Jackson St, San Jose, CA 95112',
   'Arroyo Valley High School Stadium': '1881 W Base Line St, San Bernardino, CA 92411',
-  'Cal State Dominguez Hills': '1000 E Victoria St, Carson, CA 90747',
-  'LA City College': '855 N Vermont Ave, Los Angeles, CA 90029',
-  'San Jose Sports Complex': 'N 22nd St & Jackson St, San Jose, CA 95112',
-  'Las Vegas Sports Park': '7400 Alta Dr, Las Vegas, NV 89145',
-  'St. George Sports Complex': '900 S 1000 E, St. George, UT 84790',
-  'Buena Park HS': '8833 Whitaker St, Buena Park, CA 90621',
-  'Cypress Soccer Complex': '9700 Alondra Blvd, Cypress, CA 90630',
-  'Ross Middle School': '4525 Caesar Chavez Ave, Los Angeles, CA 90022',
-  'Orinda Valley': '26 Orinda Way, Orinda, CA 94563'
+  'Victory Christian Academy Stadium': '810 Buena Vista Way, Chula Vista, CA 91910',
+  'Los Angeles City College Stadium': '770 Heliotrope Dr, Los Angeles, CA 90029',
+  'Morgan Hill Outdoor Sports Center': '16500 Condit Rd, Morgan Hill, CA 95037',
+  'Red Morton Park': '1120 Roosevelt Ave, Redwood City, CA 94061',
+  'Sunrise Mountain High School Stadium': '2575 Los Feliz St, Las Vegas, NV 89156',
+  'Viper Family Sports Complex Field 2': '6105 N Durango Dr, Las Vegas, NV 89149',
+  'Ed Fountain Park Field 1': '1400 N Decatur Blvd, Las Vegas, NV 89108',
+  'Little Valley Soccer Field 3': '2260 E Horseman Park Dr, St. George, UT 84790',
 };
+
 
 const PLAYER_STATS = {
   socal:[
@@ -1955,9 +1953,9 @@ function loadCards(){
 
 
 function getDirections(venue){
-  var addr = VENUES[venue] || venue;
+  var addr = VENUES[venue];
+  if(!addr){ showToast('Address coming soon for this venue'); return; }
   var encoded = encodeURIComponent(addr);
-  // Try Apple Maps on iOS, Google Maps as fallback
   var ua = navigator.userAgent;
   var url;
   if(/iPhone|iPad|iPod/.test(ua)){
