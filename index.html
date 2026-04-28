@@ -963,7 +963,7 @@ tr.zr td:first-child{box-shadow:inset 3px 0 0 #c0392b}
           <div class="gd-card-title">🟥 Disciplinary Records</div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">Live from the SWPL suspension sheet. Updated by league staff.</p>
           <div id="cards-loading" style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Loading...</div>
-          <div id="cards-error" class="hidden" style="text-align:center;padding:20px;color:#c0392b;font-size:13px">Could not load data. Check your connection.</div>
+          <div id="cards-error" class="hidden" style="text-align:center;padding:20px;color:#c0392b;font-size:13px;line-height:1.6"></div>
           <div id="cards-list" class="hidden"></div>
         </div>
       </div>
@@ -1416,6 +1416,49 @@ const DATA = {
 /* ═══ STATE ═══ */
 const S={page:'home',stdRegion:'socal',stdDiv:null,schedView:'upcoming',schedRegion:'all',weekOffset:0,newsCat:'all'};
 
+/* ═══ LIVE SCHEDULE ═══ */
+// Apps Script web-app URL — scrapes all 4 SWPL sites nightly and returns fresh JSON.
+// To update this URL: deploy a new version of swpl-schedule.gs and paste the /exec URL here.
+var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycby5Wzn-tYpJiJGXXWyxGHnpOj-jKePlfIzcfXogy60EgaLLFQWTirjIcpDQLVUGBzlx/exec';
+var liveScheduleFetched = false;
+
+function fetchLiveSchedule() {
+  if (liveScheduleFetched) return;
+  fetch(LIVE_SCHEDULE_URL + '?_=' + Date.now())
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(json) {
+      if (!json || json.status !== 'ok' || !json.data) return;
+      var d = json.data;
+      var regions = ['socal','pacific','nevada','sandiego'];
+      var anyUpdated = false;
+      regions.forEach(function(reg) {
+        var liveUp  = (d.upcoming || []).filter(function(f){ return f.region === reg; });
+        var liveRes = (d.results  || []).filter(function(f){ return f.region === reg; });
+        if (liveUp.length > 0 || liveRes.length > 0) {
+          DATA.schedule.upcoming = DATA.schedule.upcoming.filter(function(f){ return f.region !== reg; }).concat(liveUp);
+          DATA.schedule.results  = DATA.schedule.results.filter(function(f){ return f.region !== reg; }).concat(liveRes);
+          anyUpdated = true;
+        }
+      });
+      if (anyUpdated) {
+        // Re-sort after merge so dates stay in correct order
+        DATA.schedule.upcoming.sort(function(a,b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+        DATA.schedule.results.sort(function(a,b){  return a.date > b.date ? -1 : a.date < b.date ? 1 : 0; });
+        liveScheduleFetched = true;
+        try { renderSchedule(); }    catch(e) {}
+        try { renderStdSchedule(); } catch(e) {}
+        console.log('[SWPL] Live schedule loaded: ' + (d.upcoming||[]).length + ' upcoming, ' + (d.results||[]).length + ' results');
+      }
+    })
+    .catch(function(e) {
+      // Silently fall back to bundled data — no visible error to the user
+      console.warn('[SWPL] Live schedule unavailable, using bundled data:', e.message);
+    });
+}
+
 /* ═══ BOOT ═══ */
 window.addEventListener('DOMContentLoaded',()=>{
   try{initDivSelect();}catch(e){}
@@ -1425,6 +1468,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   try{renderHomeNews();}catch(e){}
   try{renderStdSchedule();}catch(e){}
   try{renderStdPlayerStats();}catch(e){}
+  // Fetch live schedule in background — updates display automatically when ready
+  try{fetchLiveSchedule();}catch(e){}
   setTimeout(function(){
     var splash=document.getElementById('splash');
     var app=document.getElementById('app');
@@ -1851,13 +1896,48 @@ const VENUES = {
   'OC Great Park Field 4': '8000 Great Park Blvd, Irvine, CA 92618',
   'OC Great Park Field 5': '8000 Great Park Blvd, Irvine, CA 92618',
   'OC Great Park': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park, Irvine': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 1': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 2': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 3': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 4': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 5': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 6': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 7': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 8': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 9': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 10': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 11': '8000 Great Park Blvd, Irvine, CA 92618',
+  'OC Great Park Turf 12': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 1': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 2': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 3': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 4': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 5': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 6': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 7': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 8': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 9': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 10': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 11': '8000 Great Park Blvd, Irvine, CA 92618',
+  'Orange County Great Park Turf 12': '8000 Great Park Blvd, Irvine, CA 92618',
   'Oak Creek Park Field A': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field B': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field C': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field D': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Park Field E': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Park Field F': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field 1': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field 2': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Oak Creek Park Field 3': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field A': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field B': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field C': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field D': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field 1': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field 2': '15616 Valley Oak Dr, Irvine, CA 92618',
+  'Oak Creek Field 3': '15616 Valley Oak Dr, Irvine, CA 92618',
   'Watson Park Field 1': 'N 22nd St & Jackson St, San Jose, CA 95112',
   'Watson Park Field 2': 'N 22nd St & Jackson St, San Jose, CA 95112',
   'Watson Park Field 3': 'N 22nd St & Jackson St, San Jose, CA 95112',
@@ -1960,6 +2040,49 @@ function renderStdPlayerStats(){
 }
 
 /* ═══ CARDS / DISCIPLINARY ═══ */
+// Minimal CSV parser: handles quoted fields, commas inside quotes,
+// escaped quotes (""), and CRLF/LF newlines. Returns array of objects keyed by header row.
+function parseCsv(text){
+  if(!text) return [];
+  var rows = [];
+  var row = [];
+  var field = '';
+  var inQuotes = false;
+  var i = 0;
+  // Strip BOM
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  while(i < text.length){
+    var c = text.charAt(i);
+    if(inQuotes){
+      if(c === '"'){
+        if(text.charAt(i+1) === '"'){ field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if(c === '"'){ inQuotes = true; i++; continue; }
+    if(c === ','){ row.push(field); field = ''; i++; continue; }
+    if(c === '\r'){ i++; continue; }
+    if(c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  if(field !== '' || row.length){ row.push(field); rows.push(row); }
+  if(!rows.length) return [];
+  var headers = rows[0].map(function(h){ return h.trim(); });
+  var out = [];
+  for(var r = 1; r < rows.length; r++){
+    var obj = {};
+    var allEmpty = true;
+    for(var j = 0; j < headers.length; j++){
+      var v = (rows[r][j] || '').trim();
+      obj[headers[j]] = v;
+      if(v) allEmpty = false;
+    }
+    if(!allEmpty) out.push(obj);
+  }
+  return out;
+}
+
 var cardsLoaded = false;
 function loadCards(){
   if(cardsLoaded) return;
@@ -1970,11 +2093,14 @@ function loadCards(){
   error.classList.add('hidden');
   list.classList.add('hidden');
 
-  fetch('https://script.google.com/macros/s/AKfycbw9ENbOcVhbh4zXA4HZ1P4Z2ognHIyNaw_H3CY9DkyP7V6cboirPPssW-GLwzAWRccZyA/exec')
-    .then(function(r){ return r.json(); })
-    .then(function(rows){
+  // Fetch suspension data via Apps Script (avoids CORS issues with Google Sheets)
+  fetch(LIVE_SCHEDULE_URL + '?mode=suspensions&_=' + Date.now())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(json){
+      if(!json || json.status !== 'ok') throw new Error(json && json.message ? json.message : 'Bad response');
+      var rows = json.rows || [];
       loading.classList.add('hidden');
-      if(!rows || !rows.length){
+      if(!rows.length){
         list.innerHTML='<p style="text-align:center;color:var(--muted);font-size:13px;padding:16px">No records found.</p>';
         list.classList.remove('hidden');
         return;
@@ -2027,6 +2153,8 @@ function loadCards(){
     })
     .catch(function(e){
       loading.classList.add('hidden');
+      error.innerHTML = 'Could not load suspension data: ' + e.message + '<br>'
+        + '<span style="font-size:12px;color:var(--muted)">Check your connection and try again.</span>';
       error.classList.remove('hidden');
       console.error('Cards fetch error:', e);
     });
