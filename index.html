@@ -1471,9 +1471,65 @@ const S={page:'home',stdRegion:'socal',stdDiv:null,schedView:'upcoming',schedReg
 /* ═══ LIVE SCHEDULE ═══ */
 // Apps Script web-app URL — scrapes all 4 SWPL sites nightly and returns fresh JSON.
 // To update this URL: deploy a new version of swpl-schedule.gs and paste the /exec URL here.
-var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycbzqwZSphO0bLH7S9DKG7wzLnNtKj3r5m83EoBQivRMvxxfncEGnyBJ489SEJisxtq6v/exec';
+var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycbyXESdZM3nbNTRthWs62QEMvz7NKjNMvJ_9rgGXYOU2A7KDeJYxBq66cpuljqu93_xv/exec';
 var liveScheduleFetched = false;
 var liveStatsFetched = false;
+var liveStandingsFetched = false;
+
+// Compute last-5 form per team from the results we already have
+function computeFormFromResults(region) {
+  var results = DATA.schedule.results.filter(function(f){ return f.region===region; });
+  var byTeam = {};
+  results.forEach(function(f){
+    if(f.homeScore===undefined||f.awayScore===undefined) return;
+    var hR = f.homeScore>f.awayScore?'W':f.homeScore<f.awayScore?'L':'D';
+    var aR = f.awayScore>f.homeScore?'W':f.awayScore<f.homeScore?'L':'D';
+    if(!byTeam[f.home]) byTeam[f.home]=[];
+    if(!byTeam[f.away]) byTeam[f.away]=[];
+    byTeam[f.home].push({date:f.date,res:hR});
+    byTeam[f.away].push({date:f.date,res:aR});
+  });
+  var out={};
+  for(var t in byTeam){
+    byTeam[t].sort(function(a,b){return b.date.localeCompare(a.date);});
+    out[t]=byTeam[t].slice(0,5).map(function(x){return x.res;});
+  }
+  return out;
+}
+
+function fetchLiveStandings() {
+  if (liveStandingsFetched) return;
+  fetch(LIVE_SCHEDULE_URL + '?mode=standings&_=' + Date.now())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(json){
+      if(!json||json.status!=='ok') return;
+      var data=json.data||{};
+      ['socal','pacific','nevada','sandiego'].forEach(function(region){
+        var divs=data[region];
+        if(!divs||!Object.keys(divs).length) return;
+        // Compute form from scraped results for this region
+        var formMap=computeFormFromResults(region);
+        // Apply form to each team — fuzzy name match
+        function findForm(name){
+          if(formMap[name]) return formMap[name];
+          var nl=name.toLowerCase();
+          for(var k in formMap){
+            var kl=k.toLowerCase();
+            if(kl===nl||kl.indexOf(nl)!==-1||nl.indexOf(kl)!==-1) return formMap[k];
+          }
+          return [];
+        }
+        for(var div in divs){
+          divs[div].forEach(function(team){ team.form=findForm(team.name); });
+        }
+        DATA.regions[region].divisions=divs;
+      });
+      liveStandingsFetched=true;
+      try{ if(S.page==='standings') renderStandings(); }catch(e){}
+      console.log('[SWPL] Live standings loaded');
+    })
+    .catch(function(e){ console.log('[SWPL] Standings fetch failed (using hardcoded):', e); });
+}
 
 function fetchLiveStats() {
   if (liveStatsFetched) return;
@@ -1540,9 +1596,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   try{renderHomeNews();}catch(e){}
   try{renderStdSchedule();}catch(e){}
   try{renderStdPlayerStats();}catch(e){}
-  // Fetch live schedule and stats in background — updates display automatically when ready
+  // Fetch live schedule, stats, and standings in background
   try{fetchLiveSchedule();}catch(e){}
   try{fetchLiveStats();}catch(e){}
+  try{fetchLiveStandings();}catch(e){}
   setTimeout(function(){
     var splash=document.getElementById('splash');
     var app=document.getElementById('app');
@@ -1568,21 +1625,22 @@ function init(){}
     ptrBar.classList.add('ptr-visible');
     liveScheduleFetched=false;
     liveStatsFetched=false;
+    liveStandingsFetched=false;
     var done=0;
     function finish(){
       done++;
-      if(done<2)return;
-      // small delay so spinner is visible briefly
+      if(done<3)return;
       setTimeout(function(){
         ptrBar.classList.remove('ptr-visible');
         refreshing=false;
         try{renderSchedule();}catch(e){}
         try{renderStdSchedule();}catch(e){}
         try{renderStandings();}catch(e){}
+        try{renderStdPlayerStats();}catch(e){}
         try{renderHomeNews();}catch(e){}
       },600);
     }
-    // Re-fetch both feeds
+    // Re-fetch schedule + results
     fetch(LIVE_SCHEDULE_URL+'?_='+Date.now())
       .then(function(r){return r.json();})
       .then(function(json){
@@ -1591,6 +1649,7 @@ function init(){}
           if(json.results)DATA.schedule.results=json.results;
         }
       }).catch(function(){}).finally(finish);
+    // Re-fetch stats
     fetch(LIVE_SCHEDULE_URL+'?mode=stats&_='+Date.now())
       .then(function(r){return r.json();})
       .then(function(json){
@@ -1598,6 +1657,27 @@ function init(){}
           var d=json.data||{};
           ['socal','pacific','nevada','sandiego'].forEach(function(reg){
             if(d[reg]&&d[reg].length>0)PLAYER_STATS[reg]=d[reg];
+          });
+        }
+      }).catch(function(){}).finally(finish);
+    // Re-fetch standings
+    fetch(LIVE_SCHEDULE_URL+'?mode=standings&_='+Date.now())
+      .then(function(r){return r.json();})
+      .then(function(json){
+        if(json&&json.status==='ok'){
+          var data=json.data||{};
+          ['socal','pacific','nevada','sandiego'].forEach(function(region){
+            var divs=data[region];
+            if(!divs||!Object.keys(divs).length) return;
+            var formMap=computeFormFromResults(region);
+            function findForm(name){
+              if(formMap[name]) return formMap[name];
+              var nl=name.toLowerCase();
+              for(var k in formMap){var kl=k.toLowerCase();if(kl===nl||kl.indexOf(nl)!==-1||nl.indexOf(kl)!==-1)return formMap[k];}
+              return [];
+            }
+            for(var div in divs){ divs[div].forEach(function(t){t.form=findForm(t.name);}); }
+            DATA.regions[region].divisions=divs;
           });
         }
       }).catch(function(){}).finally(finish);
