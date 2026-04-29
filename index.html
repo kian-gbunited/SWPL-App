@@ -1582,8 +1582,16 @@ function setStdRegion(btn){
   }
 }
 
+function resolveLogo(name){
+  if(!name) return null;
+  if(LOGOS[name]) return LOGOS[name];
+  var nl=name.toLowerCase();
+  for(var k in LOGOS){ if(k.toLowerCase()===nl) return LOGOS[k]; }
+  for(var k in LOGOS){ var kl=k.toLowerCase(); if(nl.indexOf(kl)!==-1||kl.indexOf(nl)!==-1) return LOGOS[k]; }
+  return null;
+}
 function teamCrestHTML(name,cls='team-crest'){
-  const url=LOGOS[name];
+  const url=resolveLogo(name);
   const colors=['#1a3a6e','#c0392b','#1d6a2a','#6c3483','#b7770d','#117a65','#1a5276','#7f8c8d'];
   const ci=Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%colors.length;
   if(url) return `<img class="${cls}" src="${url}" alt="${name}" onerror="this.outerHTML='<div class=\\'team-crest-placeholder\\' style=\\'background:${colors[ci]}\\'>${name.substring(0,2).toUpperCase()}</div>'"/>`;
@@ -1889,7 +1897,7 @@ function renderStdTeams(){
   var rows=[];
   for(var i=0;i<allTeams.length;i++){
     var tm=allTeams[i];
-    var url=LOGOS[tm.name]||'';
+    var url=resolveLogo(tm.name)||'';
     var ci=Math.abs((tm.name||'').split('').reduce(function(a,c){return a+c.charCodeAt(0);},0))%colors.length;
     var col=colors[ci];
     var ini=(tm.name||'??').substring(0,2).toUpperCase();
