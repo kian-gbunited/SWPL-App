@@ -1957,7 +1957,7 @@ function renderNews(){
   const feat=all[0];const rest=all.slice(1);
   const fd=document.getElementById('news-featured');
   fd.innerHTML=feat?`
-    <div class="news-feat" onclick="openIAB('${feat.url}')">
+    <div class="news-feat" onclick="window.open('${feat.url}','_blank')">
       <img class="nf-feat-bg" src="${feat.img}" alt="" onerror="this.style.display='none'"/>
       <div class="nf-feat-grad"></div>
       <div class="nf-feat-body">
@@ -1967,7 +1967,7 @@ function renderNews(){
       </div>
     </div>`:'';
   document.getElementById('news-grid').innerHTML=rest.map(n=>`
-    <div class="nc" onclick="openIAB('${n.url}')">
+    <div class="nc" onclick="window.open('${n.url}','_blank')">
       <img class="nc-img" src="${n.img}" alt="" onerror="this.style.background='var(--off)'"/>
       <div class="nc-body">
         <div class="nc-tag">${n.tag}</div>
@@ -1979,7 +1979,7 @@ function renderNews(){
 
 function renderHomeNews(){
   document.getElementById('home-news-list').innerHTML=DATA.news.slice(0,3).map(n=>`
-    <div class="hn-card" onclick="openIAB('${n.url}')">
+    <div class="hn-card" onclick="window.open('${n.url}','_blank')">
       <img class="hn-img" src="${n.img}" alt="" onerror="this.style.background='var(--off)'"/>
       <div class="hn-body">
         <div class="hn-tag">${n.tag}</div>
