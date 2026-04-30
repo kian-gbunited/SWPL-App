@@ -1471,7 +1471,7 @@ const S={page:'home',stdRegion:'socal',stdDiv:null,schedView:'upcoming',schedReg
 /* ═══ LIVE SCHEDULE ═══ */
 // Apps Script web-app URL — scrapes all 4 SWPL sites nightly and returns fresh JSON.
 // To update this URL: deploy a new version of swpl-schedule.gs and paste the /exec URL here.
-var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycbyXESdZM3nbNTRthWs62QEMvz7NKjNMvJ_9rgGXYOU2A7KDeJYxBq66cpuljqu93_xv/exec';
+var LIVE_SCHEDULE_URL = 'https://script.google.com/macros/s/AKfycbxG6X2_vteUL39fV8K_ErL1YoWLO-YQ877J-lb0bf0uYkhYFs2IMyFgyHF_9yUEReUz/exec';
 var liveScheduleFetched = false;
 var liveStatsFetched = false;
 var liveStandingsFetched = false;
@@ -1529,6 +1529,22 @@ function fetchLiveStandings() {
       console.log('[SWPL] Live standings loaded');
     })
     .catch(function(e){ console.log('[SWPL] Standings fetch failed (using hardcoded):', e); });
+}
+
+var liveNewsFetched = false;
+function fetchLiveNews() {
+  if (liveNewsFetched) return;
+  fetch(LIVE_SCHEDULE_URL + '?mode=news&_=' + Date.now())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(json){
+      if(!json||json.status!=='ok'||!json.data||!json.data.length) return;
+      DATA.news = json.data;
+      liveNewsFetched = true;
+      try{ renderNews(); }catch(e){}
+      try{ renderHomeNews(); }catch(e){}
+      console.log('[SWPL] Live news loaded: ' + json.data.length + ' articles');
+    })
+    .catch(function(e){ console.log('[SWPL] News fetch failed (using hardcoded):', e); });
 }
 
 function fetchLiveStats() {
@@ -1596,10 +1612,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   try{renderHomeNews();}catch(e){}
   try{renderStdSchedule();}catch(e){}
   try{renderStdPlayerStats();}catch(e){}
-  // Fetch live schedule, stats, and standings in background
+  // Fetch all live data in background
   try{fetchLiveSchedule();}catch(e){}
   try{fetchLiveStats();}catch(e){}
   try{fetchLiveStandings();}catch(e){}
+  try{fetchLiveNews();}catch(e){}
   setTimeout(function(){
     var splash=document.getElementById('splash');
     var app=document.getElementById('app');
@@ -1626,10 +1643,11 @@ function init(){}
     liveScheduleFetched=false;
     liveStatsFetched=false;
     liveStandingsFetched=false;
+    liveNewsFetched=false;
     var done=0;
     function finish(){
       done++;
-      if(done<3)return;
+      if(done<4)return;
       setTimeout(function(){
         ptrBar.classList.remove('ptr-visible');
         refreshing=false;
@@ -1659,6 +1677,12 @@ function init(){}
             if(d[reg]&&d[reg].length>0)PLAYER_STATS[reg]=d[reg];
           });
         }
+      }).catch(function(){}).finally(finish);
+    // Re-fetch news
+    fetch(LIVE_SCHEDULE_URL+'?mode=news&_='+Date.now())
+      .then(function(r){return r.json();})
+      .then(function(json){
+        if(json&&json.status==='ok'&&json.data&&json.data.length) DATA.news=json.data;
       }).catch(function(){}).finally(finish);
     // Re-fetch standings
     fetch(LIVE_SCHEDULE_URL+'?mode=standings&_='+Date.now())
