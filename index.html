@@ -1801,29 +1801,26 @@ function setStdRegion(btn){
   }
 }
 
+function normLogoStr(s){
+  // Lowercase, strip combining diacritics (U+0300–U+036F), keep only alphanumeric + spaces
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+}
 function resolveLogo(name){
   if(!name) return null;
   if(LOGOS[name]) return LOGOS[name];
-  // Normalize: lowercase, strip accents, keep only letters/numbers/spaces
-  function norm(s){
-    return s.toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g,'')
-      .replace(/[^a-z0-9]+/g,' ').trim();
-  }
-  var nn=norm(name);
+  var nn=normLogoStr(name);
   // Case-insensitive + accent-stripped exact
-  for(var k in LOGOS){ if(norm(k)===nn) return LOGOS[k]; }
+  for(var k in LOGOS){ if(normLogoStr(k)===nn) return LOGOS[k]; }
   // One normalized string contains the other
-  for(var k in LOGOS){ var kn=norm(k); if(nn.indexOf(kn)!==-1||kn.indexOf(nn)!==-1) return LOGOS[k]; }
+  for(var k in LOGOS){ var kn=normLogoStr(k); if(nn.indexOf(kn)!==-1||kn.indexOf(nn)!==-1) return LOGOS[k]; }
   // Word-overlap scoring: pick best LOGOS key sharing the most significant words
   var nw=nn.split(' ').filter(function(w){return w.length>2;});
   var best=null,bestScore=0;
   for(var k in LOGOS){
-    var kw=norm(k).split(' ').filter(function(w){return w.length>2;});
+    var kw=normLogoStr(k).split(' ').filter(function(w){return w.length>2;});
     var hits=0;
     for(var i=0;i<nw.length;i++){
       for(var j=0;j<kw.length;j++){
-        // word must start the same (handles "villareal"/"villarreal" etc)
         var a=nw[i],b=kw[j];
         var minL=Math.min(a.length,b.length);
         if(minL>=4 && a.substring(0,minL)===b.substring(0,minL)) hits++;
