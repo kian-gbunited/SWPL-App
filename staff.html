@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff — GB United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  .staff-section { background: var(--off); padding: 80px 5%; }
+
+  .staff-grid-wrap { max-width: 800px; }
+
+  .staff-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--navy);
+    display: inline-block;
+    padding: 6px 16px;
+    margin-bottom: 32px;
+  }
+
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .staff-card {
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .staff-photo {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .staff-photo-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .staff-photo-placeholder span {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .staff-info {
+    padding: 18px 20px;
+    border-top: 3px solid var(--navy);
+  }
+
+  .staff-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .staff-role {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  @media (max-width: 768px) {
+    .staff-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="logo.png" alt="GB United"></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html" class="active">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-hero" data-bg="STAFF">
+  <div class="page-hero-eyebrow">GB United</div>
+  <h1>Our <span>Staff.</span></h1>
+  <p class="page-hero-sub">The coaches and staff behind GB United.</p>
+</div>
+
+<section class="staff-section">
+  <div class="staff-label">GB United Staff</div>
+  <div class="staff-grid-wrap">
+  <div class="staff-grid">
+
+    <!-- 1. Kian Kohan -->
+    <div class="staff-card">
+      <img src="kian.jpg" alt="Kian Kohan" class="staff-photo">
+      <div class="staff-info">
+        <div class="staff-name">Kian Kohan</div>
+      </div>
+    </div>
+
+    <!-- 2. Thomas Elliott -->
+    <div class="staff-card">
+      <img src="thomas-staff.jpg" alt="Thomas Elliott" class="staff-photo">
+      <div class="staff-info">
+        <div class="staff-name">Thomas Elliott</div>
+      </div>
+    </div>
+
+    <!-- 3. David Rosenblatt -->
+    <div class="staff-card">
+      <div class="staff-photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="8" fill="#999"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#999"/></svg>
+        <span>Photo coming soon</span>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">David Rosenblatt</div>
+      </div>
+    </div>
+
+    <!-- 4. Andrew Vasquez -->
+    <div class="staff-card">
+      <div class="staff-photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="8" fill="#999"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#999"/></svg>
+        <span>Photo coming soon</span>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">Andrew Vasquez</div>
+      </div>
+    </div>
+
+    <!-- 5. Marlon Ollivierre -->
+    <div class="staff-card">
+      <img src="marlon-staff.jpg" alt="Marlon Ollivierre" class="staff-photo">
+      <div class="staff-info">
+        <div class="staff-name">Marlon Ollivierre</div>
+      </div>
+    </div>
+
+    <!-- 6. Michael Byerts -->
+    <div class="staff-card">
+      <div class="staff-photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="8" fill="#999"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#999"/></svg>
+        <span>Photo coming soon</span>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">Michael Byerts</div>
+      </div>
+    </div>
+
+    <!-- 7. Jason Betley -->
+    <div class="staff-card">
+      <div class="staff-photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="8" fill="#999"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#999"/></svg>
+        <span>Photo coming soon</span>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">Jason Betley</div>
+      </div>
+    </div>
+
+    <!-- 8. Jason Villar -->
+    <div class="staff-card">
+      <div class="staff-photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="8" fill="#999"/><path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#999"/></svg>
+        <span>Photo coming soon</span>
+      </div>
+      <div class="staff-info">
+        <div class="staff-name">Jason Villar</div>
+      </div>
+    </div>
+
+    <!-- 9. Aidan Feuer -->
+    <div class="staff-card">
+      <img src="aidan-staff.jpg" alt="Aidan Feuer" class="staff-photo">
+      <div class="staff-info">
+        <div class="staff-name">Aidan Feuer</div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo"><img src="logo.png" alt="GB United"></div>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="https://instagram.com/gbunited_" target="_blank">Instagram</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 GB United Soccer Club</span>
+</footer>
+
+<script>function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }</script>
+</body>
+</html>

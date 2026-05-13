@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — GB United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+<style>
+  #contact-main {
+    background: var(--off);
+    padding: 80px 5%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .contact-info-left h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .contact-info-left p {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 48px;
+  }
+
+  .contact-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .contact-block {
+    padding: 24px 0;
+    border-bottom: 0.5px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .contact-block:first-child { border-top: 0.5px solid #ddd; }
+
+  .contact-block-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .contact-block-value {
+    font-size: 16px;
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.2s;
+  }
+
+  .contact-block-value:hover { color: var(--red); }
+
+  .contact-block-sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .social-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  .social-link {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .social-link:hover { border-color: var(--red); color: var(--red); }
+
+  /* FORM */
+  .contact-form-right {
+    background: var(--white);
+    padding: 52px 44px;
+  }
+
+  .contact-form-right h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  .contact-form-right p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid #e0e0e0;
+    background: var(--off);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--red);
+    background: var(--white);
+  }
+
+  .form-group textarea { height: 120px; resize: none; }
+
+  .form-submit {
+    width: 100%;
+    padding: 17px;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .form-submit:hover { background: #a81212; }
+
+  /* TRYOUT INFO */
+  #tryout-info {
+    background: var(--navy);
+    padding: 80px 5%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .tryout-block {
+    background: rgba(255,255,255,0.04);
+    padding: 36px 32px;
+  }
+
+  .tryout-block-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .tryout-block h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--white);
+    margin-bottom: 10px;
+    line-height: 1.1;
+  }
+
+  .tryout-block p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    #contact-main { grid-template-columns: 1fr; gap: 48px; }
+    .contact-form-right { padding: 36px 28px; }
+    .form-row { grid-template-columns: 1fr; }
+    #tryout-info { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="logo.png" alt="GB United">
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="page-hero" data-bg="CONTACT">
+  <div class="page-hero-eyebrow">Get in touch</div>
+  <h1>Join <span>GB United.</span></h1>
+  <p class="page-hero-sub">Interested in tryouts, have questions about a specific team, or want to learn more? Reach out and we'll get back to you quickly.</p>
+</div>
+
+<section id="contact-main">
+  <div class="contact-info-left">
+    <div class="section-tag">Contact info</div>
+    <h2>Let's talk.</h2>
+
+
+    <div class="contact-blocks">
+      <div class="contact-block">
+        <span class="contact-block-label">Email</span>
+        <a href="mailto:info@gbunited.com" class="contact-block-value">info@gbunited.com</a>
+      </div>
+    </div>
+
+    <div class="social-row">
+      <a href="https://instagram.com/gbunited_" target="_blank" class="social-link">Instagram</a>
+      <a href="https://gbsoccerschool.com" target="_blank" class="social-link">GB Soccer School</a>
+    </div>
+  </div>
+
+  <div class="contact-form-right">
+    <h3>Send us a message</h3>
+    <p>Fill out the form and we'll get back to you within 24 hours.</p>
+
+    <form action="https://formspree.io/f/maqaekap" method="POST" id="contactForm">
+    <input type="hidden" name="_replyto" value="info@gbunited.com">
+    <input type="hidden" name="_subject" value="New GB United inquiry">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Parent name</label>
+        <input type="text" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label>Player name</label>
+        <input type="text" placeholder="Player's name">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="your@email.com">
+    </div>
+
+    <div class="form-group">
+      <label>Phone (optional)</label>
+      <input type="tel" placeholder="(818) 000-0000">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Player date of birth</label>
+        <input type="text" name="date_of_birth" placeholder="e.g. 03/15/2015">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea placeholder="Tell us a bit about your player — experience level, current team, any questions..."></textarea>
+    </div>
+
+    <button type="submit" class="form-submit">Send message</button>
+    </form>
+    <div id="form-success" style="display:none; margin-top:16px; padding:16px; background:#e8f5e9; color:#2e7d32; font-size:14px;">Message sent! We'll be in touch within 24 hours.</div>
+  </div>
+</section>
+
+<section id="tryout-info">
+  <div class="tryout-block">
+    <div class="tryout-block-label">Location</div>
+    <h3>Van Nuys Sherman Oaks Park &amp; Balboa Park</h3>
+    <p>Sherman Oaks, Los Angeles. Centrally located for families across the valley and West LA.</p>
+  </div>
+  <div class="tryout-block">
+    <div class="tryout-block-label">Age groups</div>
+    <h3>Boys & Girls · Ages 7–17</h3>
+    <p>B2018, B2017, B2016, B2015 · G2016, G2015, G2014, G2012. New teams being added each season.</p>
+  </div>
+  <div class="tryout-block">
+    <div class="tryout-block-label">How it works</div>
+    <h3>Try out. Meet the coach. Decide.</h3>
+    <p>Come to a tryout session, get evaluated by our coaches, and see if GB United is the right fit for your player.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">
+    <img src="logo.png" alt="GB United">
+  </div>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="https://instagram.com/gbunited_" target="_blank">Instagram</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 GB United Soccer Club</span>
+</footer>
+
+<script>
+function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }
+
+const form = document.getElementById('contactForm');
+if (form) {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const data = new FormData(form);
+    const response = await fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+    if (response.ok) {
+      form.style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+  });
+}
+</script>
+</body>
+</html>

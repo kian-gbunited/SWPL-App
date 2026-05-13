@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store — GB United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+<style>
+  .store-main {
+    background: var(--off);
+    padding: 40px 5% 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .store-left h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .store-left p {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .store-right {
+    background: var(--white);
+    border: 0.5px solid #ddd;
+    padding: 52px 44px;
+    text-align: center;
+  }
+
+  .kit-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 32px 0 40px;
+    text-align: left;
+  }
+
+  .kit-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 0.5px solid #eee;
+    font-size: 14px;
+    color: var(--navy);
+  }
+
+  .kit-item:first-child { border-top: 0.5px solid #eee; }
+
+  .kit-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    flex-shrink: 0;
+  }
+
+  .store-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  .btn-store {
+    display: inline-block;
+    background: var(--navy);
+    color: var(--white);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 18px 40px;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-store:hover { background: var(--red); }
+
+  .store-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    background: var(--red);
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .store-main { grid-template-columns: 1fr; gap: 40px; }
+    .store-right { padding: 36px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="logo.png" alt="GB United"></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html" class="active">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div style="background:var(--dark); padding: 100px 5% 40px; border-bottom: 2px solid var(--red);">
+  <div style="font-size:11px; font-weight:500; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:12px;">Official GB United kit</div>
+  <h1 style="font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,6vw,80px); color:var(--white); line-height:1;">GB United <span style="color:var(--red);">Store.</span></h1>
+  <p style="font-size:15px; font-weight:300; color:rgba(255,255,255,0.55); margin-top:12px;">Get your official GB United kit. All gear is available through our club store on Soccer.com.</p>
+</div>
+
+<section class="store-main">
+  <div class="store-left">
+    <div class="section-tag">Official kit</div>
+    <h2>Wear the crest.</h2>
+    <p>Every GB United player is required to have the official kit for games. Order through our club store on Soccer.com to make sure you get the right gear for your team.</p>
+    <p>The uniform package is purchased separately from your club membership and ships directly to you.</p>
+    <a href="https://www.soccer.com/club/#/2005049350/fanwear?category=Shirts" target="_blank" class="btn-primary">Shop the store</a>
+  </div>
+
+  <div class="store-right">
+    <img src="action-girl.jpg" alt="GB United player in action" style="width:100%; aspect-ratio:4/3; object-fit:cover; object-position: center 20%; display:block; margin-bottom:20px;">
+    <a href="https://www.soccer.com/club/#/2005049350/fanwear?category=Shirts" target="_blank" class="btn-store">Go to Soccer.com store</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo"><img src="logo.png" alt="GB United"></div>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="https://instagram.com/gbunited_" target="_blank">Instagram</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 GB United Soccer Club</span>
+</footer>
+
+<script>function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }</script>
+</body>
+</html>

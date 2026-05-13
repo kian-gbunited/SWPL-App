@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training — GB United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+<style>
+  #trainers { background: var(--dark); padding: 80px 5%; }
+  #trainers .section-title { color: var(--white); }
+  #trainers .section-body { color: rgba(255,255,255,0.5); margin-bottom: 56px; }
+  .trainer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 40px; }
+  .trainer-card { background: rgba(255,255,255,0.04); padding: 52px 44px; border-top: 3px solid var(--red); }
+  .trainer-card.gold { border-top-color: var(--gold); }
+  .trainer-role { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 16px; }
+  .trainer-card.gold .trainer-role { color: var(--gold); }
+  .trainer-name { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--white); line-height: 1; margin-bottom: 32px; }
+  .trainer-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+  #program { background: var(--off); padding: 80px 5%; }
+  .program-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+  .program-item { background: var(--white); padding: 36px 30px; border-top: 3px solid transparent; transition: border-color 0.2s; }
+  .program-item:hover { border-top-color: var(--red); }
+  .program-icon { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--red); margin-bottom: 12px; }
+  .program-item h3 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); margin-bottom: 10px; }
+  .program-item p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .cta-strip { background: var(--red); padding: 64px 5%; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+  .cta-strip h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 4vw, 48px); color: var(--white); }
+  .cta-strip p { font-size: 15px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+  .btn-white { display: inline-block; background: var(--white); color: var(--red); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 16px 32px; white-space: nowrap; }
+  .btn-white:hover { background: var(--off); }
+  @media (max-width: 768px) { .trainer-grid, .program-grid { grid-template-columns: 1fr; } .trainer-card { padding: 36px 28px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="logo.png" alt="GB United"></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html" class="active">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-hero" data-bg="TRAIN">
+  <div class="page-hero-eyebrow">Position Specific Training · Included in your Program</div>
+  <h1><span>Training.</span></h1>
+  <p class="page-hero-sub">GB United players train twice a week with professional coaches and get access to Goalkeeper and Striker sessions included in the program.</p>
+</div>
+
+<section id="trainers">
+  <div class="section-tag">Position specific training</div>
+  <h2 class="section-title">Coached by people<br>who've lived it.</h2>
+  <p class="section-body">Beyond standard team practice, every GB United player has access to position-specific coaching. These sessions run bi-weekly and are fully included in the program.</p>
+
+  <div class="trainer-grid">
+    <div class="trainer-card">
+      <div class="trainer-role">Goalkeeper coach</div>
+      <div class="trainer-name">Aidan Feuer</div>
+      <img src="aidan.jpg" alt="Aidan Feuer coaching" style="width:100%; display:block; margin:20px 0;">
+      <div class="trainer-tags">
+        <span class="tag">Goalkeeping</span>
+        <span class="tag">Bi-weekly sessions</span>
+      </div>
+    </div>
+    <div class="trainer-card gold">
+      <div class="trainer-role">Striker coach</div>
+      <div class="trainer-name">Thomas Elliott</div>
+      <img src="thomas.jpg" alt="Thomas Elliott coaching" style="width:100%; aspect-ratio:4/3; object-fit:cover; object-position:center 30%; display:block; margin:20px 0;">
+      <div class="trainer-tags">
+        <span class="tag">Striker training</span>
+        <span class="tag">Bi-weekly sessions</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="program">
+  <div class="section-tag">Weekly structure</div>
+  <h2 class="section-title">How training works.</h2>
+  <div class="program-grid">
+    <div class="program-item">
+      <div class="program-icon">2x</div>
+      <h3>Team training</h3>
+      <p>Every team trains twice per week for 90 minutes. Structured sessions with your team coach, focused on technical development and team shape.</p>
+    </div>
+    <div class="program-item">
+      <div class="program-icon">GK</div>
+      <h3>Goalkeeper sessions</h3>
+      <p>Bi-weekly dedicated Goalkeeper training with Aidan Feuer. Goalkeepers get their own coaching space to develop the skills specific to their position.</p>
+    </div>
+    <div class="program-item">
+      <div class="program-icon">ST</div>
+      <h3>Striker sessions</h3>
+      <p>Bi-weekly Striker training with Thomas Elliott. Finishing, movement, and decision-making. The things that turn good players into goal scorers.</p>
+    </div>
+  </div>
+</section>
+
+<div class="cta-strip">
+  <div>
+    <h2>Ready to train with us?</h2>
+    <p>Tryouts open for 2026–27 · Boys & Girls · Ages 7–17</p>
+  </div>
+  <a href="contact.html" class="btn-white">Get in touch</a>
+</div>
+
+<footer>
+  <div class="footer-logo"><img src="logo.png" alt="GB United"></div>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="https://instagram.com/gbunited_" target="_blank">Instagram</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 GB United Soccer Club</span>
+</footer>
+
+<script>function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }</script>
+</body>
+</html>

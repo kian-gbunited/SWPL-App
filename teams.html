@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teams — GB United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+<style>
+  .teams-section { background: var(--white); padding: 80px 5%; }
+  .gender-block { margin-bottom: 72px; }
+  .gender-label { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--white); background: var(--navy); display: inline-block; padding: 6px 16px; margin-bottom: 24px; }
+  .gender-label.girls { background: var(--gold); color: var(--dark); }
+  .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2px; }
+  .team-card { background: var(--off); padding: 36px 32px; position: relative; overflow: hidden; transition: background 0.2s; }
+  .team-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+  .team-card:hover { background: #eceae6; }
+  .team-card:hover::after { transform: scaleX(1); }
+  .team-age { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+  .team-year { font-size: 12px; font-weight: 500; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+  .team-details { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .team-details li { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .team-details li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+  #expect { background: var(--off); padding: 80px 5%; }
+  .expect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+  .expect-item { background: var(--white); padding: 32px 28px; }
+  .expect-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--red); line-height: 1; margin-bottom: 12px; }
+  .expect-item h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+  .expect-item p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .tryout-banner { background: var(--navy); padding: 64px 5%; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+  .tryout-banner h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 4vw, 52px); color: var(--white); line-height: 1; }
+  .tryout-info { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .tryout-info span { font-size: 14px; color: rgba(255,255,255,0.55); }
+  .tryout-info span strong { color: var(--gold); font-weight: 500; }
+  @media (max-width: 768px) { .expect-grid { grid-template-columns: 1fr; } .tryout-banner { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="logo.png" alt="GB United"></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html" class="active">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-hero" data-bg="TEAMS">
+  <div class="page-hero-eyebrow">Boys & Girls · Ages 7–17</div>
+  <h1>Our <span>Teams.</span></h1>
+  <p class="page-hero-sub">GB United fields competitive teams across age groups in the Coast Soccer League. Find your team below.</p>
+</div>
+
+<section class="teams-section">
+  <div class="gender-block">
+    <div class="gender-label">Boys teams</div>
+    <div class="teams-grid">
+      <div class="team-card">
+        <div class="team-age">U8</div>
+        <div class="team-year">Born 2019 / 2018</div>
+        <ul class="team-details">
+          <li>7v7 format</li>
+          <li>2x 25 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U9</div>
+        <div class="team-year">Born 2018 / 2017</div>
+        <ul class="team-details">
+          <li>7v7 format</li>
+          <li>2x 25 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U10</div>
+        <div class="team-year">Born 2017 / 2016</div>
+        <ul class="team-details">
+          <li>7v7 format</li>
+          <li>2x 25 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U11</div>
+        <div class="team-year">Born 2016 / 2015</div>
+        <ul class="team-details">
+          <li>9v9 format</li>
+          <li>2x 30 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="gender-block">
+    <div class="gender-label girls">Girls teams</div>
+    <div class="teams-grid">
+      <div class="team-card">
+        <div class="team-age">U10</div>
+        <div class="team-year">Born 2017 / 2016</div>
+        <ul class="team-details">
+          <li>7v7 format</li>
+          <li>2x 25 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U11</div>
+        <div class="team-year">Born 2016 / 2015</div>
+        <ul class="team-details">
+          <li>9v9 format</li>
+          <li>2x 30 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U12</div>
+        <div class="team-year">Born 2015 / 2014</div>
+        <ul class="team-details">
+          <li>9v9 format</li>
+          <li>2x 30 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+      <div class="team-card">
+        <div class="team-age">U13</div>
+        <div class="team-year">Born 2013 / 2012</div>
+        <ul class="team-details">
+          <li>11v11 format</li>
+          <li>2x 35 min halves</li>
+          <li>Twice weekly training</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+  <div class="section-tag">What to expect</div>
+  <h2 class="section-title">Year round competitive play.</h2>
+  <div class="expect-grid">
+    <div class="expect-item">
+      <div class="expect-num">2x</div>
+      <h3>Weekly training</h3>
+      <p>Every team trains twice per week for 90 minutes with professional coaches focused on technical development and team shape.</p>
+    </div>
+    <div class="expect-item">
+      <div class="expect-num">10</div>
+      <h3>Months of soccer</h3>
+      <p>Competitive soccer throughout the year, with Summer and Holiday breaks.</p>
+    </div>
+    <div class="expect-item">
+      <div class="expect-num">1:1</div>
+      <h3>Player reviews</h3>
+      <p>Individual coach feedback every season — specific strengths, areas to improve, and goals set for each player.</p>
+    </div>
+  </div>
+</section>
+
+<div class="tryout-banner">
+  <div>
+    <h2>Tryouts open for<br>2026–27 season.</h2>
+    <div class="tryout-info">
+      <span><strong>Email:</strong> info@gbunited.com</span>
+    </div>
+  </div>
+  <a href="contact.html" class="btn-primary">Get in touch</a>
+</div>
+
+<footer>
+  <div class="footer-logo"><img src="logo.png" alt="GB United"></div>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="teams.html">Teams</a></li>
+    <li><a href="staff.html">Staff</a></li>
+    <li><a href="training.html">Training</a></li>
+    <li><a href="store.html">Store</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="https://instagram.com/gbunited_" target="_blank">Instagram</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 GB United Soccer Club</span>
+</footer>
+
+<script>function toggleNav() { document.getElementById('navLinks').classList.toggle('open'); }</script>
+</body>
+</html>
